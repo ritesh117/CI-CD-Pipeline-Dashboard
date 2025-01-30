@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD Pipeline Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .pipeline-stage {
+            transition: all 0.3s ease;
+        }
+
+        .pipeline-stage:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-indigo-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">CI/CD Pipeline Dashboard</h1>
+            <div class="flex items-center space-x-4">
+                <button class="hover:bg-indigo-700 px-3 py-2 rounded">
+                    <i class="bi bi-bell"></i>
+                </button>
+                <button class="hover:bg-indigo-700 px-3 py-2 rounded">
+                    <i class="bi bi-gear"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-4">
+        <!-- Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-gray-500 text-sm">Success Rate</h3>
+                <p class="text-2xl font-bold text-green-500">92%</p>
+                <canvas id="successChart" class="mt-2"></canvas>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-gray-500 text-sm">Average Build Time</h3>
+                <p class="text-2xl font-bold text-blue-500">4.2 min</p>
+                <canvas id="buildTimeChart" class="mt-2"></canvas>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-gray-500 text-sm">Deployments Today</h3>
+                <p class="text-2xl font-bold text-purple-500">24</p>
+                <canvas id="deploymentsChart" class="mt-2"></canvas>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-gray-500 text-sm">Active Pipelines</h3>
+                <p class="text-2xl font-bold text-orange-500">8</p>
+                <canvas id="pipelinesChart" class="mt-2"></canvas>
+            </div>
+        </div>
+
+        <!-- Pipeline Status -->
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Pipeline Status - Left Side -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6 w-full md:w-1/2">
+                <h2 class="text-xl font-bold mb-4">Pipeline Status</h2>
+                <div class="space-y-4">
+                    <div class="pipeline-stage bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-semibold">Main Branch Pipeline</h3>
+                                <div class="flex space-x-2 mt-2">
+                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Build ✓</span>
+                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Test ✓</span>
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Deploy
+                                        ⟳</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-500">Duration: 3m 24s</p>
+                                <p class="text-sm text-gray-500">Started: 2 min ago</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-stage bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-semibold">Feature Branch Pipeline</h3>
+                                <div class="flex space-x-2 mt-2">
+                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Build ✓</span>
+                                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Test ✗</span>
+                                    <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Deploy ⏸</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-500">Duration: 2m 15s</p>
+                                <p class="text-sm text-gray-500">Started: 5 min ago</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pipeline-stage bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-semibold">Development Branch Pipeline</h3>
+                                <div class="flex space-x-2 mt-2">
+                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Build ✓</span>
+                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Test ✓</span>
+                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Deploy ✓</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-500">Duration: 4m 10s</p>
+                                <p class="text-sm text-gray-500">Started: 10 min ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pipeline-stage bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="font-semibold">Hotfix Branch Pipeline</h3>
+                                <div class="flex space-x-2 mt-2">
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">Build ⟳</span>
+                                    <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Test ⏸</span>
+                                    <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Deploy ⏸</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-500">Duration: 1m 45s</p>
+                                <p class="text-sm text-gray-500">Started: Just now</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right side content placeholder -->
+            <div class="w-full md:w-1/2">
+                <!-- Test Results -->
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h2 class="text-xl font-bold mb-4">Test Results</h2>
+                    <canvas id="testResultsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Builds -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-xl font-semibold mb-4">Recent Builds</h2>
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center space-x-2">
+                <div class="h-2 w-64 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500 rounded-full" style="width: 75%"></div>
+                </div>
+                <div class="flex items-center">
+                    <div class="animate-pulse flex space-x-2">
+                        <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
+                        <div class="h-2 w-2 bg-blue-400 rounded-full"></div>
+                        <div class="h-2 w-2 bg-blue-300 rounded-full"></div>
+                    </div>
+                </div>
+                <span class="text-sm text-gray-600">75% Complete</span>
+            </div>
+        </div>
+        <div class="flex justify-end mb-4">
+            <select
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                <option value="10">10 per page</option>
+                <option value="25">25 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+            </select>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="border-b">
+                        <th class="text-left py-3 px-4">Build ID</th>
+                        <th class="text-left py-3 px-4">Status</th>
+                        <th class="text-left py-3 px-4">Branch</th>
+                        <th class="text-left py-3 px-4">Commit</th>
+                        <th class="text-left py-3 px-4">Time</th>
+                    </tr>
+                </thead>
+                <tbody id="buildList">
+                    <!-- Builds are instered here as an starting example  -->
+                    <tr class="border-b hover:bg-gray-50 transition-colors duration-200">
+                        <td class="py-3 px-4 font-medium">#1234</td>
+                        <td class="py-3 px-4">
+                            <span class="text-green-500 flex items-center">
+                                <i class="bi bi-check-circle mr-2"></i>
+                                Success
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">main</td>
+                        <td class="py-3 px-4">feat: Add new pipeline stage</td>
+                        <td class="py-3 px-4">5 min ago</td>
+                    </tr>
+                    <tr class="border-b hover:bg-gray-50 transition-colors duration-200">
+                        <td class="py-3 px-4 font-medium">#1233</td>
+                        <td class="py-3 px-4">
+                            <span class="text-red-500 flex items-center">
+                                <i class="bi bi-x-circle mr-2"></i>
+                                Failed
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">develop</td>
+                        <td class="py-3 px-4">fix: Update deployment config</td>
+                        <td class="py-3 px-4">1 hour ago</td>
+                    </tr>
+                    <tr class="border-b hover:bg-gray-50 transition-colors duration-200">
+                        <td class="py-3 px-4 font-medium">#1232</td>
+                        <td class="py-3 px-4">
+                            <span class="text-green-500 flex items-center">
+                                <i class="bi bi-check-circle mr-2"></i>
+                                Success
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">feature/auth</td>
+                        <td class="py-3 px-4">feat: Implement OAuth</td>
+                        <td class="py-3 px-4">2 hours ago</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+    </div>
+    <script>
+        // Sample build data with more entries and additional information
+        const builds = [
+            {
+                id: '#1234',
+                status: 'success',
+                branch: 'main',
+                commit: 'feat: Add new pipeline stage',
+                time: '5 min ago',
+            },
+            {
+                id: '#1233',
+                status: 'failed',
+                branch: 'develop',
+                commit: 'fix: Update deployment config',
+                time: '1 hour ago',
+            },
+            {
+                id: '#1232',
+                status: 'success',
+                branch: 'feature/auth',
+                commit: 'feat: Implement OAuth',
+                time: '2 hours ago',
+            }
+        ];
+
+        // Function to format the build row
+        function formatBuildRow(build) {
+            const statusColor = build.status === 'success' ? 'text-green-500' : 'text-red-500';
+            const statusIcon = build.status === 'success' ? 'check-circle' : 'x-circle';
+
+            return `
+                        <tr class="border-b hover:bg-gray-50 transition-colors duration-200">
+                            <td class="py-3 px-4 font-medium">${build.id}</td>
+                            <td class="py-3 px-4">
+                                <span class="${statusColor} flex items-center">
+                                    <i class="bi bi-${statusIcon} mr-2"></i>
+                                    ${build.status.charAt(0).toUpperCase() + build.status.slice(1)}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4">
+                                <span class="flex items-center">
+                                    <i class="bi bi-git mr-2"></i>
+                                    ${build.branch}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 font-mono text-sm">${build.commit}</td>
+                            <td class="py-3 px-4 text-gray-500">${build.time}</td>
+                        </tr>
+                    `;
+        }
+
+        // Function to render builds
+        function renderBuilds(buildsData) {
+            const buildList = document.getElementById('buildList');
+            buildList.innerHTML = ''; // Clear existing content
+
+            buildsData.forEach(build => {
+                buildList.insertAdjacentHTML('beforeend', formatBuildRow(build));
+            });
+        }
+
+        // Initial render
+        renderBuilds(builds);
+
+        // Simulate new build additions (for demonstration)
+        setInterval(() => {
+            const newBuild = {
+                id: '#' + Math.floor(1000 + Math.random() * 9000),
+                status: Math.random() > 0.3 ? 'success' : 'failed',
+                branch: ['main', 'develop', 'feature/ui', 'hotfix'][Math.floor(Math.random() * 4)],
+                commit: ['feat: Update UI', 'fix: Bug resolution', 'chore: Dependency update'][Math.floor(Math.random() * 3)],
+                time: 'Just now',
+            };
+
+            builds.unshift(newBuild);
+            if (builds.length > 10) builds.pop(); // To keep only last 10 builds
+            renderBuilds(builds);
+        }, 10000); // To add new build every 10 seconds
+    </script>
+    <script>
+        // Chart configurations
+        const chartConfig = {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                datasets: [{
+                    data: [92, 90, 85, 89, 92],
+                    borderColor: 'rgb(34, 197, 94)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        };
+
+        // Initialize charts
+        const charts = ['successChart', 'buildTimeChart', 'deploymentsChart', 'pipelinesChart'].forEach(id => {
+            new Chart(document.getElementById(id), chartConfig);
+        });
+
+        // Test Results Pie Chart
+        const testResultsChart = new Chart(document.getElementById('testResultsChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Passed', 'Failed'],
+                datasets: [{
+                    data: [2, 1],
+                    backgroundColor: [
+                        'rgb(34, 197, 94)',  // green for passed
+                        'rgb(239, 68, 68)',  // red for failed 
+                    ],
+                    borderWidth: 1
+                }]
+
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Build Success vs Failure Rate'
+                    }
+                }
+            }
+        });
+        // Set container size for pie chart
+        const testResultsContainer = document.getElementById('testResultsChart').parentElement;
+        testResultsContainer.style.width = '600px';
+        testResultsContainer.style.height = '470px';
+        testResultsContainer.style.display = 'flex';
+        testResultsContainer.style.justifyContent = 'center';
+        testResultsContainer.style.alignItems = 'center';
+        testResultsContainer.style.margin = 'auto';
+        testResultsContainer.style.padding = '50px';
+        testResultsContainer.style.backgroundColor = '#fff';
+        testResultsContainer.style.borderRadius = '10px';
+        testResultsContainer.style.boxShadow = '0 1px 3px 0 rgb(0 0 0 / 0.1)';
+
+        // Update pie chart when builds change
+        const originalRenderBuilds = renderBuilds;
+        renderBuilds = function (buildsData) {
+            originalRenderBuilds(buildsData);
+
+            // Update chart data
+            testResultsChart.data.datasets[0].data = [
+                buildsData.filter(b => b.status === 'success').length,
+                buildsData.filter(b => b.status === 'failed').length
+            ];
+            testResultsChart.update();
+        };
+
+        // Simulated real-time updates
+        setInterval(() => {
+            // Update pipeline statuses
+            const stages = document.querySelectorAll('.pipeline-stage');
+            stages.forEach(stage => {
+                const randomTime = Math.floor(Math.random() * 5) + 1;
+                const timeElement = stage.querySelector('.text-right p:first-child');
+                if (timeElement) {
+                    timeElement.textContent = `Duration: ${randomTime}m ${Math.floor(Math.random() * 60)}s`;
+                }
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
